@@ -1,0 +1,25 @@
+{
+  "name": "bookreviewhub",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"cd backend && mvn spring-boot:run\" \"cd frontend && npm run dev\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sabretooth2438/BookReviewHub.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Sabretooth2438/BookReviewHub/issues"
+  },
+  "homepage": "https://github.com/Sabretooth2438/BookReviewHub#readme",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

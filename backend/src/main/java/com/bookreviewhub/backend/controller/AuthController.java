@@ -1,0 +1,91 @@
+package com.bookreviewhub.backend.controller;
+
+import com.bookreviewhub.backend.model.User;
+import com.bookreviewhub.backend.model.enums.Role;
+import com.bookreviewhub.backend.security.JwtUtils;
+import com.bookreviewhub.backend.service.UserService;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
+public class AuthController {
+
+  private final AuthenticationManager am;
+  private final UserService users;
+  private final JwtUtils jwt;
+
+  // User registration and login
+
+  @PostMapping("/signup")
+  public ResponseEntity<?> signup(@RequestBody Signup dto) {
+    users.register(dto.email, dto.password, Role.USER);
+    return ResponseEntity.ok(Map.of("msg", "registered"));
+  }
+
+  @PostMapping("/login")
+  public ResponseEntity<?> login(@RequestBody Login dto) {
+    Authentication auth = am.authenticate(
+        new UsernamePasswordAuthenticationToken(dto.email, dto.password));
+
+    String token = jwt.generate(
+        dto.email,
+        auth.getAuthorities().iterator().next().getAuthority().replace("ROLE_", ""));
+
+    return ResponseEntity.ok(Map.of("token", token));
+  }
+
+  // Password reset
+
+  @PostMapping("/reset-password")
+  public ResponseEntity<?> reset(@RequestBody Pw dto, Authentication a) {
+
+    if (a == null)
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+    String email = a.getName();
+    User u = users.findByEmail(email);
+
+    if (u == null || !users.matches(dto.oldPassword(), u.getPassword()))
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body("Old password incorrect");
+
+    users.updatePassword(email, dto.newPassword());
+    return ResponseEntity.ok(Map.of("msg", "password updated"));
+  }
+
+  // Data Transfer Objects (DTOs) for signup and login
+
+  @Data
+  static class Signup {
+    @Email
+    @NotBlank
+    String email;
+    @NotBlank
+    String password;
+  }
+
+  @Data
+  static class Login {
+    @Email
+    @NotBlank
+    String email;
+    @NotBlank
+    String password;
+  }
+
+  // Password reset DTO
+  record Pw(String oldPassword, String newPassword) {
+  }
+}

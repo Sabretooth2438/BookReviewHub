@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Firebase
+backend/src/main/resources/firebase/serviceAccountKey.json
+
+# Local env files
+.env
