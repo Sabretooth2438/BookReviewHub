@@ -1,5 +1,6 @@
 package com.bookreviewhub.backend.service;
 
+import com.bookreviewhub.backend.model.Book;
 import com.bookreviewhub.backend.model.Review;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
@@ -15,7 +16,6 @@ public class ReviewService {
   private static final String COL_REVIEWS = "reviews";
   private static final String COL_BOOKS = "books";
 
-  // Firestore instance
   private Firestore db() {
     return FirestoreClient.getFirestore();
   }
@@ -44,20 +44,18 @@ public class ReviewService {
     }
   }
 
-  // CRUD operations
+  // Updated CRUD operations
 
-  public String create(Review r) throws Exception {
+  public Book create(Review r) throws Exception {
     DocumentReference ref = db().collection(COL_REVIEWS).document();
     r.setId(ref.getId());
     ref.set(r).get();
-
-    refreshRating(r.getBookId());
-    return r.getId();
+    return refreshRating(r.getBookId());
   }
 
-  public void update(Review r) throws Exception {
+  public Book update(Review r) throws Exception {
     db().collection(COL_REVIEWS).document(r.getId()).set(r).get();
-    refreshRating(r.getBookId());
+    return refreshRating(r.getBookId());
   }
 
   public void delete(String id) throws Exception {
@@ -68,8 +66,6 @@ public class ReviewService {
     db().collection(COL_REVIEWS).document(id).delete().get();
     refreshRating(existing.getBookId());
   }
-
-  // Cascade Support
 
   public void deleteAllOfBook(String bookId)
       throws ExecutionException, InterruptedException {
@@ -96,10 +92,7 @@ public class ReviewService {
     batch.commit().get();
   }
 
-  // Internal methods
-
-  // Refreshes the average rating of a book based on its reviews.
-  private void refreshRating(String bookId) {
+  private Book refreshRating(String bookId) {
     List<Review> reviews = ofBook(bookId);
 
     double avg = reviews.isEmpty()
@@ -108,10 +101,15 @@ public class ReviewService {
             .collect(Collectors.averagingDouble(Review::getRating));
 
     try {
-      db().collection(COL_BOOKS).document(bookId)
-          .update("rating", avg).get();
+      DocumentReference bookRef = db().collection(COL_BOOKS).document(bookId);
+      bookRef.update("rating", avg).get();
+
+      DocumentSnapshot snapshot = bookRef.get().get();
+      return snapshot.toObject(Book.class);
     } catch (InterruptedException | ExecutionException e) {
       System.err.println("Could not refresh rating for book " + bookId + ": " + e.getMessage());
+      Thread.currentThread().interrupt();
+      return null;
     }
   }
 }

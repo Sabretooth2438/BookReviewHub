@@ -1,5 +1,6 @@
 package com.bookreviewhub.backend.controller;
 
+import com.bookreviewhub.backend.model.Book;
 import com.bookreviewhub.backend.model.Review;
 import com.bookreviewhub.backend.service.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class ReviewController {
 
   @PostMapping("/book/{bookId}")
   @PreAuthorize("isAuthenticated()")
-  public String create(@PathVariable String bookId,
+  public Book create(@PathVariable String bookId,
       @RequestBody Review r,
       Authentication a) throws Exception {
     r.setBookId(bookId);
@@ -39,12 +40,12 @@ public class ReviewController {
 
   @PutMapping("/{id}")
   @PreAuthorize("@reviewAuth.isOwner(#id, authentication.name) or hasRole('ADMIN')")
-  public void update(@PathVariable String id,
+  public Book update(@PathVariable String id,
       @RequestBody Review r,
       Authentication a) throws Exception {
     r.setId(id);
     r.setCreatedBy(a.getName());
-    svc.update(r);
+    return svc.update(r);
   }
 
   @DeleteMapping("/{id}")

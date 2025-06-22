@@ -8,6 +8,7 @@ import StarRating from '../components/StarRating'
 import Button from '../components/Button'
 import Dialog from '../components/Dialog'
 import ConfirmDialog from '../components/ConfirmDialog'
+import Input from '../components/Input'
 import { useAuth } from '../auth/AuthProvider'
 
 const BookDetails = () => {
@@ -16,34 +17,43 @@ const BookDetails = () => {
   const { token } = useAuth()
   const ownerEmail = token ? JSON.parse(atob(token.split('.')[1])).sub : ''
 
-  /* book query */
   const { data: book } = useQuery({
-    queryKey: ['books'],
+    queryKey: ['books', id],
     queryFn: fetchBooks,
     select: (res) => res.data.find((b) => b.id === id),
   })
 
-  /* reviews query */
   const { data: reviews } = useQuery({
     queryKey: ['reviews', id],
     queryFn: () => rev.fetchReviews(id).then((r) => r.data),
   })
 
-  /* mutations */
+  const invalidateBook = () => qc.invalidateQueries({ queryKey: ['books', id] })
+
   const make = useMutation({
     mutationFn: (d) => rev.createReview(id, d),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['reviews', id] }),
-  })
-  const update = useMutation({
-    mutationFn: (r) => rev.updateReview(r.id, r),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['reviews', id] }),
-  })
-  const del = useMutation({
-    mutationFn: rev.deleteReview,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['reviews', id] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['reviews', id] })
+      invalidateBook()
+    },
   })
 
-  /* local state */
+  const update = useMutation({
+    mutationFn: (r) => rev.updateReview(r.id, r),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['reviews', id] })
+      invalidateBook()
+    },
+  })
+
+  const del = useMutation({
+    mutationFn: rev.deleteReview,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['reviews', id] })
+      invalidateBook()
+    },
+  })
+
   const [content, setContent] = useState('')
   const [rating, setRating] = useState(0)
   const [editR, setEditR] = useState(null)
@@ -66,61 +76,76 @@ const BookDetails = () => {
           )}
 
           <h1 className="text-2xl font-bold">{book.title}</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">{book.author}</p>
-          <StarRating value={book.rating} />
+          <p className="text-gray-600 dark:text-gray-400 mb-2">{book.author}</p>
+
+          <div className="flex items-center gap-2 mb-4">
+            <StarRating value={book.rating} />
+            <span className="text-sm text-gray-500">
+              ({book.rating.toFixed(1)})
+            </span>
+          </div>
 
           <div className="mt-4 max-h-60 overflow-y-auto whitespace-pre-line">
             {book.description}
           </div>
 
           {token && (
-            <div className="my-6 space-y-3">
+            <div className="my-6 space-y-2">
               <textarea
                 className="w-full border rounded p-2 bg-white dark:bg-gray-800"
                 placeholder="Write a review…"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
               />
-              <input
-                type="number"
-                min="0"
-                max="5"
-                className="border rounded p-2 w-24 bg-white dark:bg-gray-800"
-                value={rating}
-                onChange={(e) => setRating(e.target.value)}
-              />
-              <Button
-                onClick={() => make.mutate({ content, rating: Number(rating) })}
-              >
-                Submit
-              </Button>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <StarRating value={rating} onChange={setRating} />
+                  <span className="text-sm text-gray-500">({rating})</span>
+                </div>
+                <Button
+                  onClick={() => {
+                    make.mutate({ content, rating: Number(rating) })
+                    setContent('')
+                    setRating(0)
+                  }}
+                >
+                  Submit
+                </Button>
+              </div>
             </div>
           )}
 
           <h2 className="text-xl font-semibold mt-8 mb-4">Reviews</h2>
 
-          {reviews?.map((r) => {
-            const owner = r.createdBy === ownerEmail
-            return (
-              <article
-                key={r.id}
-                className="border-b py-4 flex justify-between"
-              >
-                <div>
-                  <StarRating value={r.rating} />
-                  <p>{r.content}</p>
-                  <p className="text-xs text-gray-500">by {r.createdBy}</p>
-                </div>
-
-                {owner && (
-                  <div className="space-x-2">
-                    <Button onClick={() => setEditR(r)}>Edit</Button>
-                    <Button onClick={() => setDelId(r.id)}>Delete</Button>
+          <div className="max-h-72 overflow-y-auto space-y-4 pr-2">
+            {reviews?.map((r) => {
+              const owner = r.createdBy === ownerEmail
+              return (
+                <article
+                  key={r.id}
+                  className="border-b pb-3 flex justify-between"
+                >
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <StarRating value={r.rating} />
+                      <span className="text-sm text-gray-500">
+                        ({r.rating})
+                      </span>
+                    </div>
+                    <p>{r.content}</p>
+                    <p className="text-xs text-gray-500">by {r.createdBy}</p>
                   </div>
-                )}
-              </article>
-            )
-          })}
+
+                  {owner && (
+                    <div className="space-x-2">
+                      <Button onClick={() => setEditR(r)}>Edit</Button>
+                      <Button onClick={() => setDelId(r.id)}>Delete</Button>
+                    </div>
+                  )}
+                </article>
+              )
+            })}
+          </div>
         </div>
       </section>
 
@@ -139,13 +164,13 @@ const BookDetails = () => {
               value={editR.content}
               onChange={(e) => setEditR({ ...editR, content: e.target.value })}
             />
-            <Input
-              type="number"
-              value={editR.rating}
-              onChange={(e) =>
-                setEditR({ ...editR, rating: Number(e.target.value) })
-              }
-            />
+            <div className="flex items-center gap-2">
+              <StarRating
+                value={editR.rating}
+                onChange={(val) => setEditR({ ...editR, rating: val })}
+              />
+              <span className="text-sm text-gray-500">({editR.rating})</span>
+            </div>
             <Button type="submit" className="w-full">
               Update
             </Button>
@@ -157,7 +182,10 @@ const BookDetails = () => {
         open={!!delId}
         title="Delete Review"
         message="Delete this review? This cannot be undone."
-        onConfirm={() => del.mutate(delId)}
+        onConfirm={() => {
+          del.mutate(delId)
+          setDelId(null)
+        }}
         onCancel={() => setDelId(null)}
       />
     </>
