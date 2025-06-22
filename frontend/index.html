@@ -1,12 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="min-h-full">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script type="module" src="/src/main.jsx"></script>
-    <title>New React App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- dark-mode hint -->
+    <meta name="color-scheme" content="light dark" />
+
+    <title>BookReviewHub</title>
+
+    <!-- primary SVG favicon (theme-aware) -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- optional PNG fallback -->
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" />
   </head>
-  <body>
+
+  <body
+    class="min-h-full bg-white text-gray-800 dark:bg-black dark:text-gray-100 antialiased"
+  >
     <div id="root"></div>
+
+    <!-- React bundle -->
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

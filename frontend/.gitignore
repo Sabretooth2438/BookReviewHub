@@ -23,5 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
+# npm package lock file
 package-lock.json
-.env
+
+# Environment variables file
+.env 
