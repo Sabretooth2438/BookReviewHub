@@ -15,7 +15,7 @@ const Login = () => {
     e.preventDefault()
     const { data } = await login(email, password)
     dispatch({ type: 'LOGIN', token: data.token })
-    nav('/')
+    nav('/profile')
   }
 
   return (

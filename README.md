@@ -1,74 +1,94 @@
 # BookReviewHub
 
-Here’s a clean, professional `README.md` template that includes all the requested sections—ready for your customization:
+BookReviewHub is a full-stack web application for browsing books and sharing reviews. The backend is built with **Spring Boot** and the frontend uses **React** with **Tailwind CSS**.
 
----
+## Features
+- User registration and authentication
+- Browse and search a catalog of books
+- Write, edit and delete reviews
+- User profiles with display name and avatar
+- Admin dashboard for managing books and reviews
 
-````markdown
-# Project Title
+## Getting Started
 
-## Description
+### Prerequisites
+- [Node.js](https://nodejs.org)
+- Java 17+ and [Maven](https://maven.apache.org)
 
-[Insert a brief description of the project here. Explain what the system does, its core features, and its primary purpose. Mention technologies used if relevant.]
+### Installation
+1. Clone the repository.
+2. Install front-end dependencies:
+   ```bash
+   cd frontend
+   npm install
+   ```
+3. Start the backend server:
+   ```bash
+   cd ../backend
+   ./mvnw spring-boot:run
+   ```
+4. In another terminal, start the React development server:
+   ```bash
+   cd ../frontend
+   npm run dev
+   ```
 
----
+You can also run both servers together from the project root with:
+```bash
+npm run dev
+```
+
+## Screenshots
+Place screenshots of the website in this section.
+
+![Homepage](./path/to/homepage.png)
+![Book page](./path/to/book-page.png)
 
 ## Pseudocode
 
 ```plaintext
-[Insert your pseudocode here. This can describe the main logic or workflow, e.g., user registration, review submission, data retrieval, etc.]
-
-Example:
 IF user submits review
     FETCH book by ID
     ADD review to book.reviews
-    CALCULATE new average rating
-    UPDATE book rating
+    RECALCULATE book rating
+    UPDATE book
 END IF
 ```
-````
-
----
 
 ## Entity-Relationship Diagram (ERD)
 
-\[Insert a brief explanation of the ERD here. Describe how entities like `User`, `Book`, `Review` relate to each other.]
+The application is centred around three main entities: **User**, **Book**, and **Review**.
 
 ![ERD Diagram Placeholder](./path/to/erd-image.png)
-
-Example:
 
 - **User** has many **Reviews**
 - **Book** has many **Reviews**
 - **Review** belongs to both **User** and **Book**
 
----
-
 ## User Stories
 
-- **\[User Story 1]**
-  _As a user, I want to register and log in so that I can access personalized features._
+- **[US1]** _As a visitor, I can sign up with a username and profile picture so that others can recognise me._
+- **[US2]** _As a reader, I want to browse books and see their ratings so that I can choose what to read._
+- **[US3]** _As a logged-in user, I can post reviews anonymously or with my profile._
+- **[US4]** _As an admin, I can manage books and moderate reviews._
 
-- **\[User Story 2]**
-  _As a user, I want to browse books and see their average rating so that I can choose what to read._
+## Future Improvements
 
-- **\[User Story 3]**
-  _As a user, I want to write and update reviews for books so that I can share my opinion._
+- Add automated tests for authentication and profile updates
+- Validate uploaded profile images server-side
+- Store user-uploaded images in dedicated cloud storage
 
-- **\[User Story 4]**
-  _As an admin, I want to manage books in the database so that I can keep the catalog updated._
+## Proposed Tasks
 
-(Add more stories as needed.)
+- Refactor the profile API so it never returns password hashes
+- Migrate book image uploads to Firebase storage instead of storing base64 data
+- Implement end-to-end tests covering signup, login and profile editing
+
+## Maintainer
+This project is maintained by [**Sabretooth2438**](https://github.com/Sabretooth2438).
+
+<img src="https://github.com/Sabretooth2438.png" width="100" alt="Sabretooth2438 avatar" />
 
 ---
 
-## More Information
-
-For additional details and to explore the project, visit the [project website](https://your-project-url.com).
-
----
-
-```
-
-Let me know if you'd like this auto-filled for your current BookReviewHub project (including ERD, user stories, and logic).
-```
+Feel free to open issues or submit pull requests to contribute.
