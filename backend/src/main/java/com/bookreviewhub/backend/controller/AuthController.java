@@ -76,7 +76,8 @@ public class AuthController {
     User u = users.findByEmail(a.getName());
     if (u == null)
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    return ResponseEntity.ok(u);
+    var view = new ProfileView(u.getEmail(), u.getUsername(), u.getAvatarUrl(), u.getRole());
+    return ResponseEntity.ok(view);
   }
 
   @PutMapping("/profile")
@@ -123,6 +124,21 @@ public class AuthController {
   @Data
   static class Profile {
     String username;
+  }
+
+  @Data
+  static class ProfileView {
+    String email;
+    String username;
+    String avatarUrl;
+    Role role;
+
+    public ProfileView(String email, String username, String avatarUrl, Role role) {
+      this.email = email;
+      this.username = username;
+      this.avatarUrl = avatarUrl;
+      this.role = role;
+    }
   }
 
   // Password reset DTO
