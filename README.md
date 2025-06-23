@@ -72,6 +72,12 @@ The application is centred around three main entities: **User**, **Book**, and *
 - **[US3]** _As a logged-in user, I can post reviews anonymously or with my profile._
 - **[US4]** _As an admin, I can manage books and moderate reviews._
 
+## Future Improvements
+
+- Add automated tests for authentication and profile updates
+- Validate uploaded profile images server-side
+- Store user-uploaded images in dedicated cloud storage
+
 ## Maintainer
 This project is maintained by [**Sabretooth2438**](https://github.com/Sabretooth2438).
 

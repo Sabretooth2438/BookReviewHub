@@ -41,7 +41,8 @@ public class UserService {
 
   public User register(String email, String rawPw, Role role, String username, String avatarUrl) {
     String hash = encoder.encode(rawPw);
-    User u = new User(UUID.randomUUID().toString(), email, hash, role, username, avatarUrl);
+    String display = (username == null || username.isBlank()) ? email : username;
+    User u = new User(UUID.randomUUID().toString(), email, hash, role, display, avatarUrl);
     db().collection(COL).document(u.getId()).set(u);
     return u;
   }
