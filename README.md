@@ -83,6 +83,8 @@ The application is centred around three main entities: **User**, **Book**, and *
 - Refactor the profile API so it never returns password hashes
 - Migrate book image uploads to Firebase storage instead of storing base64 data
 - Implement end-to-end tests covering signup, login and profile editing
+- Fix runtime error on the signup page when the removed username field is
+  referenced by older builds
 
 ## Maintainer
 This project is maintained by [**Sabretooth2438**](https://github.com/Sabretooth2438).

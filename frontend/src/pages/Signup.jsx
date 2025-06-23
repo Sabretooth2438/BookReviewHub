@@ -9,6 +9,10 @@ const Signup = () => {
   const [email, setEmail] = useState('')
   const [password, setPw] = useState('')
   const [pw2, setPw2] = useState('')
+  // legacy code referenced a username value on submit which caused a runtime
+  // error after the username field was removed. Keep a variable so older
+  // builds won't crash while the signup flow only requires email and password.
+  const username = email
   const { dispatch } = useAuth()
   const nav = useNavigate()
 
