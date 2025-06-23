@@ -32,7 +32,14 @@ const router = createBrowserRouter([
     ),
   },
 
-  { path: '/profile', element: <Profile /> },
+  {
+    path: '/profile',
+    element: (
+      <ProtectedRoute>
+        <Profile />
+      </ProtectedRoute>
+    ),
+  },
   { path: '*', element: <NotFound /> },
 ])
 

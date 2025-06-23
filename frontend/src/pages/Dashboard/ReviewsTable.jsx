@@ -156,26 +156,6 @@ const ReviewsTable = () => {
               Post anonymously
             </label>
             <Input
-              value={editR.username || ''}
-              onChange={(e) => setEditR({ ...editR, username: e.target.value })}
-              placeholder="Display name"
-            />
-            <Input
-              value={editR.avatarUrl || ''}
-              onChange={(e) => setEditR({ ...editR, avatarUrl: e.target.value })}
-              placeholder="Avatar URL"
-            />
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={editR.anonymous || false}
-                onChange={(e) =>
-                  setEditR({ ...editR, anonymous: e.target.checked })
-                }
-              />
-              Post anonymously
-            </label>
-            <Input
               type="number"
               value={editR.rating}
               onChange={(e) =>
