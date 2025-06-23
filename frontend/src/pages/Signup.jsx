@@ -7,11 +7,21 @@ import Button from '../components/Button'
 const Signup = () => {
   const [email, setEmail] = useState('')
   const [password, setPw] = useState('')
+  const [username, setUsername] = useState('')
+  const [avatarUrl, setAvatar] = useState('')
   const nav = useNavigate()
+
+  const handleFile = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => setAvatar(reader.result)
+    reader.readAsDataURL(file)
+  }
 
   const submit = async (e) => {
     e.preventDefault()
-    await signup(email, password)
+    await signup(email, password, username, avatarUrl)
     nav('/login')
   }
 
@@ -30,6 +40,17 @@ const Signup = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
+        <Input
+          placeholder="Display name"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <Input
+          placeholder="Avatar URL"
+          value={avatarUrl}
+          onChange={(e) => setAvatar(e.target.value)}
+        />
+        <input type="file" onChange={handleFile} />
         <Input
           type="password"
           placeholder="Password"

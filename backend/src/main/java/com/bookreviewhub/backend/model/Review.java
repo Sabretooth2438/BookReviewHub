@@ -11,4 +11,7 @@ public class Review {
   private String content;
   private double rating;
   private String createdBy;
+  private String username;
+  private String avatarUrl;
+  private boolean anonymous;
 }

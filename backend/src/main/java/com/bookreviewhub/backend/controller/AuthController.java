@@ -30,7 +30,7 @@ public class AuthController {
 
   @PostMapping("/signup")
   public ResponseEntity<?> signup(@RequestBody Signup dto) {
-    users.register(dto.email, dto.password, Role.USER);
+    users.register(dto.email, dto.password, Role.USER, dto.username, dto.avatarUrl);
     return ResponseEntity.ok(Map.of("msg", "registered"));
   }
 
@@ -65,6 +65,28 @@ public class AuthController {
     return ResponseEntity.ok(Map.of("msg", "password updated"));
   }
 
+  // ----- profile -----
+
+  @GetMapping("/profile")
+  public ResponseEntity<?> profile(Authentication a) {
+    if (a == null)
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+    User u = users.findByEmail(a.getName());
+    if (u == null)
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    return ResponseEntity.ok(u);
+  }
+
+  @PutMapping("/profile")
+  public ResponseEntity<?> updateProfile(@RequestBody Profile dto, Authentication a) {
+    if (a == null)
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+    users.updateProfile(a.getName(), dto.username, dto.avatarUrl);
+    return ResponseEntity.ok(Map.of("msg", "profile updated"));
+  }
+
   // Data Transfer Objects (DTOs) for signup and login
 
   @Data
@@ -74,6 +96,8 @@ public class AuthController {
     String email;
     @NotBlank
     String password;
+    String username;
+    String avatarUrl;
   }
 
   @Data
@@ -83,6 +107,12 @@ public class AuthController {
     String email;
     @NotBlank
     String password;
+  }
+
+  @Data
+  static class Profile {
+    String username;
+    String avatarUrl;
   }
 
   // Password reset DTO

@@ -56,6 +56,9 @@ const BookDetails = () => {
 
   const [content, setContent] = useState('')
   const [rating, setRating] = useState(0)
+  const [username, setUsername] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState('')
+  const [anonymous, setAnonymous] = useState(false)
   const [editR, setEditR] = useState(null)
   const [delId, setDelId] = useState(null)
 
@@ -91,6 +94,26 @@ const BookDetails = () => {
 
           {token && (
             <div className="my-6 space-y-2">
+              <input
+                className="w-full border rounded p-2 bg-white dark:bg-gray-800"
+                placeholder="Display name"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+              <input
+                className="w-full border rounded p-2 bg-white dark:bg-gray-800"
+                placeholder="Avatar URL"
+                value={avatarUrl}
+                onChange={(e) => setAvatarUrl(e.target.value)}
+              />
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={anonymous}
+                  onChange={(e) => setAnonymous(e.target.checked)}
+                />
+                Post anonymously
+              </label>
               <textarea
                 className="w-full border rounded p-2 bg-white dark:bg-gray-800"
                 placeholder="Write a review…"
@@ -104,9 +127,18 @@ const BookDetails = () => {
                 </div>
                 <Button
                   onClick={() => {
-                    make.mutate({ content, rating: Number(rating) })
+                    make.mutate({
+                      content,
+                      rating: Number(rating),
+                      username,
+                      avatarUrl,
+                      anonymous,
+                    })
                     setContent('')
                     setRating(0)
+                    setUsername('')
+                    setAvatarUrl('')
+                    setAnonymous(false)
                   }}
                 >
                   Submit
@@ -133,7 +165,18 @@ const BookDetails = () => {
                       </span>
                     </div>
                     <p>{r.content}</p>
-                    <p className="text-xs text-gray-500">by {r.createdBy}</p>
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      {!r.anonymous && r.avatarUrl && (
+                        <img
+                          src={r.avatarUrl}
+                          alt={r.username}
+                          className="w-6 h-6 rounded-full"
+                        />
+                      )}
+                      <span>
+                        by {r.anonymous ? 'Anonymous' : r.username || r.createdBy}
+                      </span>
+                    </div>
                   </div>
 
                   {owner && (
@@ -164,6 +207,26 @@ const BookDetails = () => {
               value={editR.content}
               onChange={(e) => setEditR({ ...editR, content: e.target.value })}
             />
+            <Input
+              value={editR.username || ''}
+              onChange={(e) => setEditR({ ...editR, username: e.target.value })}
+              placeholder="Display name"
+            />
+            <Input
+              value={editR.avatarUrl || ''}
+              onChange={(e) => setEditR({ ...editR, avatarUrl: e.target.value })}
+              placeholder="Avatar URL"
+            />
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={editR.anonymous || false}
+                onChange={(e) =>
+                  setEditR({ ...editR, anonymous: e.target.checked })
+                }
+              />
+              Post anonymously
+            </label>
             <div className="flex items-center gap-2">
               <StarRating
                 value={editR.rating}

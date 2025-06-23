@@ -44,6 +44,15 @@ public class ReviewService {
     }
   }
 
+  public boolean hasAnyReview() {
+    try {
+      return !db().collection(COL_REVIEWS).limit(1).get().get().isEmpty();
+    } catch (InterruptedException | ExecutionException e) {
+      Thread.currentThread().interrupt();
+      return false;
+    }
+  }
+
   // Updated CRUD operations
 
   public Book create(Review r) throws Exception {
