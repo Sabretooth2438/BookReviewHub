@@ -30,6 +30,14 @@ const BooksTable = () => {
   const [draft, setDraft] = useState(blank)
   const [delId, setDelId] = useState(null)
 
+  const handleFile = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => setDraft({ ...draft, imageUrl: reader.result })
+    reader.readAsDataURL(file)
+  }
+
   /* mutations — rating stripped before sending on update */
   const save = useMutation({
     mutationFn: (b) =>
@@ -139,6 +147,7 @@ const BooksTable = () => {
             value={draft.imageUrl}
             onChange={(e) => setDraft({ ...draft, imageUrl: e.target.value })}
           />
+          <input type="file" onChange={handleFile} />
 
           {/* Rating field removed from the form */}
 

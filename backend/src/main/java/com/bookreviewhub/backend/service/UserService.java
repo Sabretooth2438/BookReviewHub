@@ -39,9 +39,10 @@ public class UserService {
     }
   }
 
-  public User register(String email, String rawPw, Role role) {
+  public User register(String email, String rawPw, Role role, String username, String avatarUrl) {
     String hash = encoder.encode(rawPw);
-    User u = new User(UUID.randomUUID().toString(), email, hash, role);
+    String display = (username == null || username.isBlank()) ? email : username;
+    User u = new User(UUID.randomUUID().toString(), email, hash, role, display, avatarUrl);
     db().collection(COL).document(u.getId()).set(u);
     return u;
   }
@@ -51,6 +52,15 @@ public class UserService {
     if (u == null)
       throw new RuntimeException("No user");
     u.setPassword(encoder.encode(raw));
+    db().collection(COL).document(u.getId()).set(u);
+  }
+
+  public void updateProfile(String email, String username, String avatarUrl) {
+    User u = findByEmail(email);
+    if (u == null)
+      throw new RuntimeException("No user");
+    u.setUsername(username);
+    u.setAvatarUrl(avatarUrl);
     db().collection(COL).document(u.getId()).set(u);
   }
 

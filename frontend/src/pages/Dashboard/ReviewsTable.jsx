@@ -100,7 +100,18 @@ const ReviewsTable = () => {
                 {bookMap[r.bookId] ?? 'Unknown Book'}
               </Link>
               <p>{r.content}</p>
-              <p className="text-xs text-gray-500">by {r.createdBy}</p>
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                {!r.anonymous && r.avatarUrl && (
+                  <img
+                    src={r.avatarUrl}
+                    alt={r.username}
+                    className="w-6 h-6 rounded-full"
+                  />
+                )}
+                <span>
+                  by {r.anonymous ? 'Anonymous' : r.username || r.createdBy}
+                </span>
+              </div>
             </div>
 
             <div className="space-x-2">
@@ -134,6 +145,26 @@ const ReviewsTable = () => {
               value={editR.content}
               onChange={(e) => setEditR({ ...editR, content: e.target.value })}
             />
+            <Input
+              value={editR.username || ''}
+              onChange={(e) => setEditR({ ...editR, username: e.target.value })}
+              placeholder="Display name"
+            />
+            <Input
+              value={editR.avatarUrl || ''}
+              onChange={(e) => setEditR({ ...editR, avatarUrl: e.target.value })}
+              placeholder="Avatar URL"
+            />
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={editR.anonymous || false}
+                onChange={(e) =>
+                  setEditR({ ...editR, anonymous: e.target.checked })
+                }
+              />
+              Post anonymously
+            </label>
             <Input
               type="number"
               value={editR.rating}
