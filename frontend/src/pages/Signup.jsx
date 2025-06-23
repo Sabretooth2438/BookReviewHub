@@ -9,8 +9,6 @@ const Signup = () => {
   const [email, setEmail] = useState('')
   const [password, setPw] = useState('')
   const [pw2, setPw2] = useState('')
-  const [username, setUsername] = useState('')
-  const [avatarUrl, setAvatar] = useState('')
   const { dispatch } = useAuth()
   const nav = useNavigate()
 
@@ -28,8 +26,7 @@ const Signup = () => {
       alert('Passwords do not match')
       return
     }
-    const uname = username || email
-    await signup(email, password, uname, avatarUrl)
+    await signup(email, password)
     const { data } = await login(email, password)
     dispatch({ type: 'LOGIN', token: data.token })
     nav('/profile')

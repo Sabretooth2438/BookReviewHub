@@ -56,8 +56,6 @@ const BookDetails = () => {
 
   const [content, setContent] = useState('')
   const [rating, setRating] = useState(0)
-  const [username, setUsername] = useState('')
-  const [avatarUrl, setAvatarUrl] = useState('')
   const [anonymous, setAnonymous] = useState(false)
   const [editR, setEditR] = useState(null)
   const [delId, setDelId] = useState(null)
@@ -94,18 +92,6 @@ const BookDetails = () => {
 
           {token && (
             <div className="my-6 space-y-2">
-              <input
-                className="w-full border rounded p-2 bg-white dark:bg-gray-800"
-                placeholder="Display name"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-              <input
-                className="w-full border rounded p-2 bg-white dark:bg-gray-800"
-                placeholder="Avatar URL"
-                value={avatarUrl}
-                onChange={(e) => setAvatarUrl(e.target.value)}
-              />
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
@@ -130,14 +116,10 @@ const BookDetails = () => {
                     make.mutate({
                       content,
                       rating: Number(rating),
-                      username,
-                      avatarUrl,
                       anonymous,
                     })
                     setContent('')
                     setRating(0)
-                    setUsername('')
-                    setAvatarUrl('')
                     setAnonymous(false)
                   }}
                 >
@@ -206,16 +188,6 @@ const BookDetails = () => {
               as="textarea"
               value={editR.content}
               onChange={(e) => setEditR({ ...editR, content: e.target.value })}
-            />
-            <Input
-              value={editR.username || ''}
-              onChange={(e) => setEditR({ ...editR, username: e.target.value })}
-              placeholder="Display name"
-            />
-            <Input
-              value={editR.avatarUrl || ''}
-              onChange={(e) => setEditR({ ...editR, avatarUrl: e.target.value })}
-              placeholder="Avatar URL"
             />
             <label className="flex items-center gap-2 text-sm">
               <input
