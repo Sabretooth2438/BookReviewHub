@@ -1,18 +1,27 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { signup } from '../services/auth'
+import { signup, login } from '../services/auth'
+import { useAuth } from '../auth/AuthProvider'
 import Input from '../components/Input'
 import Button from '../components/Button'
 
 const Signup = () => {
   const [email, setEmail] = useState('')
   const [password, setPw] = useState('')
+  const [pw2, setPw2] = useState('')
+  const { dispatch } = useAuth()
   const nav = useNavigate()
 
   const submit = async (e) => {
     e.preventDefault()
+    if (password !== pw2) {
+      alert('Passwords do not match')
+      return
+    }
     await signup(email, password)
-    nav('/login')
+    const { data } = await login(email, password)
+    dispatch({ type: 'LOGIN', token: data.token })
+    nav('/profile')
   }
 
   return (
@@ -35,6 +44,12 @@ const Signup = () => {
           placeholder="Password"
           value={password}
           onChange={(e) => setPw(e.target.value)}
+        />
+        <Input
+          type="password"
+          placeholder="Repeat password"
+          value={pw2}
+          onChange={(e) => setPw2(e.target.value)}
         />
         <Button className="w-full">Create account</Button>
 
