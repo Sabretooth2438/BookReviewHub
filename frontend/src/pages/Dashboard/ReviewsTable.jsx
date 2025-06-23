@@ -145,6 +145,16 @@ const ReviewsTable = () => {
               value={editR.content}
               onChange={(e) => setEditR({ ...editR, content: e.target.value })}
             />
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={editR.anonymous || false}
+                onChange={(e) =>
+                  setEditR({ ...editR, anonymous: e.target.checked })
+                }
+              />
+              Post anonymously
+            </label>
             <Input
               value={editR.username || ''}
               onChange={(e) => setEditR({ ...editR, username: e.target.value })}

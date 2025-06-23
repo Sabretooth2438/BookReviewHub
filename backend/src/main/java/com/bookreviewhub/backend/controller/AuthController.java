@@ -14,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -30,7 +31,7 @@ public class AuthController {
 
   @PostMapping("/signup")
   public ResponseEntity<?> signup(@RequestBody Signup dto) {
-    users.register(dto.email, dto.password, Role.USER, dto.username, dto.avatarUrl);
+    users.register(dto.email, dto.password, Role.USER, null, null);
     return ResponseEntity.ok(Map.of("msg", "registered"));
   }
 
@@ -83,8 +84,18 @@ public class AuthController {
     if (a == null)
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-    users.updateProfile(a.getName(), dto.username, dto.avatarUrl);
+    users.updateProfile(a.getName(), dto.username);
     return ResponseEntity.ok(Map.of("msg", "profile updated"));
+  }
+
+  @PostMapping("/profile/avatar")
+  public ResponseEntity<?> updateAvatar(@RequestParam("file") MultipartFile file,
+      Authentication a) {
+    if (a == null)
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+    String url = users.updateAvatar(a.getName(), file);
+    return ResponseEntity.ok(Map.of("url", url));
   }
 
   // Data Transfer Objects (DTOs) for signup and login
@@ -112,7 +123,6 @@ public class AuthController {
   @Data
   static class Profile {
     String username;
-    String avatarUrl;
   }
 
   // Password reset DTO
