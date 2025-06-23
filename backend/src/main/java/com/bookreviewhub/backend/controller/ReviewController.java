@@ -33,6 +33,10 @@ public class ReviewController {
       Authentication a) throws Exception {
     r.setBookId(bookId);
     r.setCreatedBy(a.getName());
+    if (r.isAnonymous()) {
+      r.setUsername("Anonymous");
+      r.setAvatarUrl("");
+    }
     return svc.create(r);
   }
 
@@ -45,6 +49,10 @@ public class ReviewController {
       Authentication a) throws Exception {
     r.setId(id);
     r.setCreatedBy(a.getName());
+    if (r.isAnonymous()) {
+      r.setUsername("Anonymous");
+      r.setAvatarUrl("");
+    }
     return svc.update(r);
   }
 

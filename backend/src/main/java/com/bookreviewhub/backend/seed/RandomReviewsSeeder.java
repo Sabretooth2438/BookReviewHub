@@ -32,7 +32,7 @@ public class RandomReviewsSeeder {
   @Bean
   ApplicationRunner run() {
     return args -> {
-      if (!reviews.ofBook("dummy").isEmpty()) {
+      if (reviews.hasAnyReview()) {
         log.info("💬  Review seeding skipped – collection already populated.");
         return;
       }
@@ -47,7 +47,10 @@ public class RandomReviewsSeeder {
               b.getId(),
               COMMENTS[rnd.nextInt(COMMENTS.length)],
               rnd.nextInt(6),
-              "seed@bot");
+              "seed@bot",
+              "Seed Bot",
+              "",
+              false);
 
           reviews.create(r);
           total++;
