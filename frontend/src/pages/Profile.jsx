@@ -9,7 +9,9 @@ const Profile = () => {
   const [username, setUsername] = useState('')
   const [current, setCurrent] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
+  const [msg, setMsg] = useState(null)
 
+  /* ── load profile ── */
   useEffect(() => {
     fetchProfile().then((res) => {
       setCurrent(res.data.username || '')
@@ -18,28 +20,52 @@ const Profile = () => {
     })
   }, [])
 
+  /* ── avatar upload ── */
   const handleFile = async (e) => {
     const file = e.target.files[0]
     if (!file) return
     const { data } = await uploadAvatar(file)
     setAvatarUrl(data.url)
+    setMsg('✓ Profile image updated')
   }
 
+  /* ── username update ── */
   const submit = async (e) => {
     e.preventDefault()
-    await updateProfile(username)
-    setCurrent(username)
+    if (username.trim() === current.trim()) return
+    await updateProfile(username.trim())
+    setCurrent(username.trim())
+    setMsg('✓ Username updated')
   }
 
   return (
     <>
       <Header />
+
       <main className="p-6 max-w-md mx-auto space-y-6">
         <h1 className="text-2xl font-bold">Account settings</h1>
+
+        {msg && (
+          <div
+            onClick={() => setMsg(null)}
+            className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300
+                        px-3 py-2 rounded cursor-pointer text-sm"
+          >
+            {msg}
+          </div>
+        )}
+
         <div className="space-y-3">
-          <p className="text-sm text-gray-500">Username: {current}</p>
+          <p className="text-sm text-gray-500">
+            Current username: {current || <em>(none)</em>}
+          </p>
+
           {avatarUrl && (
-            <img src={avatarUrl} alt="avatar" className="w-20 h-20 rounded-full" />
+            <img
+              src={avatarUrl}
+              alt="avatar"
+              className="w-20 h-20 rounded-full"
+            />
           )}
         </div>
         <form onSubmit={submit} className="space-y-3">

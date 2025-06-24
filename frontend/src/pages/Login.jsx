@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { login } from '../services/auth'
+import { login, fetchProfile } from '../services/auth'
 import Input from '../components/Input'
 import Button from '../components/Button'
 import { useAuth } from '../auth/AuthProvider'
@@ -15,7 +15,11 @@ const Login = () => {
     e.preventDefault()
     const { data } = await login(email, password)
     dispatch({ type: 'LOGIN', token: data.token })
-    nav('/profile')
+
+    const prof = await fetchProfile().then((r) => r.data)
+    const needsUsername = !prof.username?.trim()
+
+    nav(needsUsername ? '/profile' : '/')
   }
 
   return (
@@ -23,8 +27,7 @@ const Login = () => {
       <form
         onSubmit={submit}
         className="w-80 space-y-4 bg-white dark:bg-gray-900/80
-                    rounded-xl shadow p-6
-                    ring-1 ring-gray-900/10 dark:ring-white/20"
+                    rounded-xl shadow p-6 ring-1 ring-gray-900/10 dark:ring-white/20"
       >
         <h1 className="text-2xl font-bold text-center">Login</h1>
 

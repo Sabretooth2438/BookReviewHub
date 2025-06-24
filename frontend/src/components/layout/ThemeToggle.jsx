@@ -1,4 +1,3 @@
-// src/components/layout/ThemeToggle.jsx
 import { useState, useLayoutEffect } from 'react'
 import { Sun, Moon } from 'lucide-react'
 

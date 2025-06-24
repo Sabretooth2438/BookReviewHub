@@ -27,11 +27,11 @@ public class AuthController {
   private final UserService users;
   private final JwtUtils jwt;
 
-  // User registration and login
+  /* ---------- signup & login ---------- */
 
   @PostMapping("/signup")
   public ResponseEntity<?> signup(@RequestBody Signup dto) {
-    users.register(dto.email, dto.password, Role.USER, null, null);
+    users.register(dto.email, dto.password, Role.USER);
     return ResponseEntity.ok(Map.of("msg", "registered"));
   }
 
@@ -47,11 +47,10 @@ public class AuthController {
     return ResponseEntity.ok(Map.of("token", token));
   }
 
-  // Password reset
+  /* ---------- password reset ---------- */
 
   @PostMapping("/reset-password")
   public ResponseEntity<?> reset(@RequestBody Pw dto, Authentication a) {
-
     if (a == null)
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
@@ -66,7 +65,7 @@ public class AuthController {
     return ResponseEntity.ok(Map.of("msg", "password updated"));
   }
 
-  // ----- profile -----
+  /* ---------- profile ---------- */
 
   @GetMapping("/profile")
   public ResponseEntity<?> profile(Authentication a) {
@@ -76,7 +75,9 @@ public class AuthController {
     User u = users.findByEmail(a.getName());
     if (u == null)
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    var view = new ProfileView(u.getEmail(), u.getUsername(), u.getAvatarUrl(), u.getRole());
+
+    var view = new ProfileView(u.getEmail(), u.getUsername(),
+        u.getAvatarUrl(), u.getRole());
     return ResponseEntity.ok(view);
   }
 
@@ -99,7 +100,7 @@ public class AuthController {
     return ResponseEntity.ok(Map.of("url", url));
   }
 
-  // Data Transfer Objects (DTOs) for signup and login
+  /* ---------- DTOs ---------- */
 
   @Data
   static class Signup {
@@ -108,8 +109,6 @@ public class AuthController {
     String email;
     @NotBlank
     String password;
-    String username;
-    String avatarUrl;
   }
 
   @Data
@@ -133,7 +132,8 @@ public class AuthController {
     String avatarUrl;
     Role role;
 
-    public ProfileView(String email, String username, String avatarUrl, Role role) {
+    public ProfileView(String email, String username,
+        String avatarUrl, Role role) {
       this.email = email;
       this.username = username;
       this.avatarUrl = avatarUrl;
@@ -141,7 +141,7 @@ public class AuthController {
     }
   }
 
-  // Password reset DTO
+  /* password-reset record */
   record Pw(String oldPassword, String newPassword) {
   }
 }

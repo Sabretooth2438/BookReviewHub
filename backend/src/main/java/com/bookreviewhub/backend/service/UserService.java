@@ -18,12 +18,13 @@ import java.util.concurrent.ExecutionException;
 public class UserService {
 
   private final PasswordEncoder encoder;
-
   private static final String COL = "users";
 
   private Firestore db() {
     return FirestoreClient.getFirestore();
   }
+
+  /* ---------- queries ---------- */
 
   public User findByEmail(String email) {
     try {
@@ -40,13 +41,17 @@ public class UserService {
     }
   }
 
-  public User register(String email, String rawPw, Role role, String username, String avatarUrl) {
+  /* ---------- registration ---------- */
+
+  public User register(String email, String rawPw, Role role) {
     String hash = encoder.encode(rawPw);
-    String display = (username == null || username.isBlank()) ? email : username;
-    User u = new User(UUID.randomUUID().toString(), email, hash, role, display, avatarUrl);
+    User u = new User(UUID.randomUUID().toString(), email, hash, role,
+        email /* username defaults to email */, null);
     db().collection(COL).document(u.getId()).set(u);
     return u;
   }
+
+  /* ---------- other user ops ---------- */
 
   public void updatePassword(String email, String raw) {
     User u = findByEmail(email);
@@ -64,17 +69,23 @@ public class UserService {
     db().collection(COL).document(u.getId()).set(u);
   }
 
-  public String updateAvatar(String email, org.springframework.web.multipart.MultipartFile file) {
+  public String updateAvatar(String email,
+      org.springframework.web.multipart.MultipartFile file) {
     User u = findByEmail(email);
     if (u == null)
       throw new RuntimeException("No user");
+
     try {
       String name = "avatars/" + u.getId() + "-" + UUID.randomUUID();
       var bucket = StorageClient.getInstance().bucket();
       bucket.create(name, file.getInputStream(), file.getContentType());
-      String url = String.format("https://storage.googleapis.com/%s/%s", bucket.getName(), name);
+
+      String url = "https://storage.googleapis.com/%s/%s"
+          .formatted(bucket.getName(), name);
+
       u.setAvatarUrl(url);
       db().collection(COL).document(u.getId()).set(u);
+
       return url;
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -84,5 +95,4 @@ public class UserService {
   public boolean matches(String rawPw, String hash) {
     return encoder.matches(rawPw, hash);
   }
-
 }
