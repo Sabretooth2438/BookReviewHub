@@ -9,21 +9,23 @@ const Header = () => {
 
   return (
     <header
-      className="flex items-center justify-between p-4 
-              bg-gray-800 text-white 
-              sticky top-0 z-50"
+      className="flex items-center justify-between p-4
+                  bg-gray-800 text-white sticky top-0 z-50"
     >
       <Link to="/" className="font-bold">
         BookReviewHub
       </Link>
 
-      <nav className="space-x-4">
+      <nav className="flex items-center gap-4">
         {role === 'ADMIN' && (
           <>
-            <Link to="/admin" className="hover:underline">
+            <Link to="/admin" className="hover:underline whitespace-nowrap">
               Books&nbsp;▸
             </Link>
-            <Link to="/admin/reviews" className="hover:underline">
+            <Link
+              to="/admin/reviews"
+              className="hover:underline whitespace-nowrap"
+            >
               Reviews&nbsp;▸
             </Link>
           </>
@@ -34,7 +36,12 @@ const Header = () => {
             <Link to="/profile" className="hover:underline">
               Profile
             </Link>
-            <Button onClick={() => dispatch({ type: 'LOGOUT' })}>Logout</Button>
+            <button
+              onClick={() => dispatch({ type: 'LOGOUT' })}
+              className="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white"
+            >
+              Logout
+            </button>
           </>
         ) : (
           <>

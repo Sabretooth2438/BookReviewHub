@@ -42,7 +42,7 @@ const BooksTable = () => {
   const save = useMutation({
     mutationFn: (b) =>
       b.id
-        ? updateBook(b.id, { ...b, rating: undefined }) // ⭐ strip rating
+        ? updateBook(b.id, { ...b, rating: undefined })
         : createBook({ ...b, rating: 0 }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['books'] }),
   })
@@ -84,7 +84,7 @@ const BooksTable = () => {
                     <img
                       src={b.imageUrl}
                       alt={b.title}
-                      className="aspect-[3/4] object-contain"
+                      className="aspect-[3/4] object-cover"
                     />
                   )}
                 </td>

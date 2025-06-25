@@ -8,18 +8,33 @@ import { useAuth } from '../auth/AuthProvider'
 const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPw] = useState('')
+  const [msg, setMsg] = useState(null)
+  const [busy, setBusy] = useState(false)
+
   const { dispatch } = useAuth()
   const nav = useNavigate()
 
   const submit = async (e) => {
     e.preventDefault()
-    const { data } = await login(email, password)
-    dispatch({ type: 'LOGIN', token: data.token })
+    setBusy(true)
+    setMsg(null)
 
-    const prof = await fetchProfile().then((r) => r.data)
-    const needsUsername = !prof.username?.trim()
+    try {
+      const { data } = await login(email, password)
+      dispatch({ type: 'LOGIN', token: data.token })
 
-    nav(needsUsername ? '/profile' : '/')
+      const prof = await fetchProfile().then((r) => r.data)
+      const needsUsername = !prof.username?.trim()
+
+      setMsg({ type: 'ok', text: 'Login successful.' })
+      setTimeout(() => {
+        nav(needsUsername ? '/profile' : '/')
+      }, 800)
+    } catch (err) {
+      setMsg({ type: 'err', text: 'Invalid email or password.' })
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
@@ -30,6 +45,19 @@ const Login = () => {
                     rounded-xl shadow p-6 ring-1 ring-gray-900/10 dark:ring-white/20"
       >
         <h1 className="text-2xl font-bold text-center">Login</h1>
+
+        {msg && (
+          <div
+            onClick={() => setMsg(null)}
+            className={`p-3 rounded text-sm cursor-pointer ${
+              msg.type === 'ok'
+                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+            }`}
+          >
+            {msg.text}
+          </div>
+        )}
 
         <Input
           placeholder="Email"
@@ -42,7 +70,10 @@ const Login = () => {
           value={password}
           onChange={(e) => setPw(e.target.value)}
         />
-        <Button className="w-full">Login</Button>
+
+        <Button className="w-full" disabled={busy}>
+          {busy ? 'Logging in…' : 'Login'}
+        </Button>
 
         <p className="text-center text-sm">
           No account?{' '}

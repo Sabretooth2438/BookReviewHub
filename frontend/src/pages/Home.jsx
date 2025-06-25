@@ -13,7 +13,7 @@ const Home = () => {
 
       <main
         className="pt-24 px-6 grid gap-6
-                sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6"
+                    sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6"
       >
         {isLoading && (
           <p className="col-span-full text-center animate-pulse">Loading…</p>
@@ -23,24 +23,25 @@ const Home = () => {
           <Link
             key={b.id}
             to={`/book/${b.id}`}
-            className="rounded-xl overflow-hidden shadow
+            className="rounded-xl overflow-hidden
                         bg-white dark:bg-gray-900/80
-                        hover:shadow-lg dark:hover:shadow
-                        border border-gray-200 dark:border-gray-700
-                        backdrop-blur"
+                        border border-black dark:border-white   /* ← new */
+                        shadow hover:shadow-lg
+                        transition-shadow"
           >
-            {b.imageUrl && (
-              <img
-                src={b.imageUrl}
-                alt={b.title}
-                className="w-full aspect-[3/4] object-contain
-                              bg-gray-800/20 dark:bg-gray-700/20"
-              />
-            )}
+            <div className="aspect-[3/4] w-full overflow-hidden">
+              {b.imageUrl && (
+                <img
+                  src={b.imageUrl}
+                  alt={b.title}
+                  className="w-full h-full object-cover"
+                />
+              )}
+            </div>
 
             <div className="p-4 space-y-1">
-              <h3 className="font-semibold">{b.title}</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <h3 className="font-semibold line-clamp-2">{b.title}</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
                 {b.author}
               </p>
               <StarRating value={b.rating} />
