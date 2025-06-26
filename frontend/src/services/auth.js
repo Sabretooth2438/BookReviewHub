@@ -9,13 +9,18 @@ export const login = (email, password) =>
 export const resetPassword = (oldPassword, newPassword) =>
   api.post('/api/auth/reset-password', { oldPassword, newPassword })
 
-export const fetchProfile = () => api.get('/api/auth/profile')
+/**
+ * If a token string is passed, send it explicitly in the header so the
+ * very first profile call after login cannot race the interceptor.
+ * Otherwise (token === undefined) fall back to the interceptor.
+ */
+export const fetchProfile = (token) =>
+  api.get(
+    '/api/auth/profile',
+    token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
+  )
 
 export const updateProfile = (username) =>
   api.put('/api/auth/profile', { username })
 
-export const uploadAvatar = (file) => {
-  const fd = new FormData()
-  fd.append('file', file)
-  return api.post('/api/auth/profile/avatar', fd)
-}
+// avatar upload removed – placeholder SVG is always shown

@@ -10,6 +10,7 @@ import Dialog from '../components/Dialog'
 import ConfirmDialog from '../components/ConfirmDialog'
 import Input from '../components/Input'
 import { useAuth } from '../auth/AuthProvider'
+import defaultAvatar from '../assets/avatar.svg'
 
 const BookDetails = () => {
   const { id } = useParams()
@@ -68,11 +69,13 @@ const BookDetails = () => {
 
       <section className="p-6 max-w-3xl mx-auto">
         <div className="bg-white dark:bg-gray-900/80 rounded-xl p-6 shadow">
+          {/* cover */}
           {book.imageUrl && (
             <img
               src={book.imageUrl}
               alt={book.title}
-              className="w-full max-w-xs mx-auto aspect-[3/4] object-contain mb-6"
+              className="w-full max-w-xs mx-auto aspect-[3/4] object-cover mb-6"
+              onError={(e) => (e.currentTarget.style.opacity = 0)}
             />
           )}
 
@@ -90,6 +93,7 @@ const BookDetails = () => {
             {book.description}
           </div>
 
+          {/* ── review form ── */}
           {token && (
             <div className="my-6 space-y-2">
               <label className="flex items-center gap-2 text-sm">
@@ -129,11 +133,14 @@ const BookDetails = () => {
             </div>
           )}
 
+          {/* ── reviews ── */}
           <h2 className="text-xl font-semibold mt-8 mb-4">Reviews</h2>
 
           <div className="max-h-72 overflow-y-auto space-y-4 pr-2">
             {reviews?.map((r) => {
               const owner = r.createdBy === ownerEmail
+              const avatarSrc = r.avatarUrl || defaultAvatar
+
               return (
                 <article
                   key={r.id}
@@ -148,15 +155,19 @@ const BookDetails = () => {
                     </div>
                     <p>{r.content}</p>
                     <div className="flex items-center gap-2 text-xs text-gray-500">
-                      {!r.anonymous && r.avatarUrl && (
+                      {!r.anonymous && (
                         <img
-                          src={r.avatarUrl}
-                          alt={r.username}
-                          className="w-6 h-6 rounded-full"
+                          src={r.avatarUrl || defaultAvatar}
+                          alt={r.username || 'avatar'}
+                          className="w-6 h-6 rounded-full object-cover
+                                      bg-gray-300 dark:bg-gray-700
+                                      p-1 dark:invert"
+                          onError={(e) => (e.currentTarget.src = defaultAvatar)}
                         />
                       )}
                       <span>
-                        by {r.anonymous ? 'Anonymous' : r.username || r.createdBy}
+                        by{' '}
+                        {r.anonymous ? 'Anonymous' : r.username || r.createdBy}
                       </span>
                     </div>
                   </div>
@@ -174,6 +185,7 @@ const BookDetails = () => {
         </div>
       </section>
 
+      {/* edit dialog */}
       <Dialog open={!!editR} onClose={() => setEditR(null)}>
         {editR && (
           <form
@@ -213,6 +225,7 @@ const BookDetails = () => {
         )}
       </Dialog>
 
+      {/* delete confirm */}
       <ConfirmDialog
         open={!!delId}
         title="Delete Review"

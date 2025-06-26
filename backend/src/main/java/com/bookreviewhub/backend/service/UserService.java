@@ -5,7 +5,6 @@ import com.bookreviewhub.backend.model.enums.Role;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
-import com.google.firebase.cloud.StorageClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,7 @@ public class UserService {
     return FirestoreClient.getFirestore();
   }
 
-  /* ---------- queries ---------- */
+  /* queries */
 
   public User findByEmail(String email) {
     try {
@@ -41,17 +40,17 @@ public class UserService {
     }
   }
 
-  /* ---------- registration ---------- */
+  /* registration */
 
   public User register(String email, String rawPw, Role role) {
     String hash = encoder.encode(rawPw);
     User u = new User(UUID.randomUUID().toString(), email, hash, role,
-        email /* username defaults to email */, null);
+        email, null);
     db().collection(COL).document(u.getId()).set(u);
     return u;
   }
 
-  /* ---------- other user ops ---------- */
+  /* profile ops */
 
   public void updatePassword(String email, String raw) {
     User u = findByEmail(email);
@@ -67,29 +66,6 @@ public class UserService {
       throw new RuntimeException("No user");
     u.setUsername(username);
     db().collection(COL).document(u.getId()).set(u);
-  }
-
-  public String updateAvatar(String email,
-      org.springframework.web.multipart.MultipartFile file) {
-    User u = findByEmail(email);
-    if (u == null)
-      throw new RuntimeException("No user");
-
-    try {
-      String name = "avatars/" + u.getId() + "-" + UUID.randomUUID();
-      var bucket = StorageClient.getInstance().bucket();
-      bucket.create(name, file.getInputStream(), file.getContentType());
-
-      String url = "https://storage.googleapis.com/%s/%s"
-          .formatted(bucket.getName(), name);
-
-      u.setAvatarUrl(url);
-      db().collection(COL).document(u.getId()).set(u);
-
-      return url;
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
   }
 
   public boolean matches(String rawPw, String hash) {

@@ -14,7 +14,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -27,7 +26,7 @@ public class AuthController {
   private final UserService users;
   private final JwtUtils jwt;
 
-  /* ---------- signup & login ---------- */
+  /* signup & login */
 
   @PostMapping("/signup")
   public ResponseEntity<?> signup(@RequestBody Signup dto) {
@@ -47,7 +46,7 @@ public class AuthController {
     return ResponseEntity.ok(Map.of("token", token));
   }
 
-  /* ---------- password reset ---------- */
+  /* password reset */
 
   @PostMapping("/reset-password")
   public ResponseEntity<?> reset(@RequestBody Pw dto, Authentication a) {
@@ -65,7 +64,7 @@ public class AuthController {
     return ResponseEntity.ok(Map.of("msg", "password updated"));
   }
 
-  /* ---------- profile ---------- */
+  /* profile */
 
   @GetMapping("/profile")
   public ResponseEntity<?> profile(Authentication a) {
@@ -90,17 +89,7 @@ public class AuthController {
     return ResponseEntity.ok(Map.of("msg", "profile updated"));
   }
 
-  @PostMapping("/profile/avatar")
-  public ResponseEntity<?> updateAvatar(@RequestParam("file") MultipartFile file,
-      Authentication a) {
-    if (a == null)
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
-    String url = users.updateAvatar(a.getName(), file);
-    return ResponseEntity.ok(Map.of("url", url));
-  }
-
-  /* ---------- DTOs ---------- */
+  /* ----- DTOs ----- */
 
   @Data
   static class Signup {
@@ -141,7 +130,6 @@ public class AuthController {
     }
   }
 
-  /* password-reset record */
   record Pw(String oldPassword, String newPassword) {
   }
 }
