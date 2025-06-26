@@ -10,8 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 @Configuration
 @ConditionalOnProperty(name = "seed", havingValue = "reviews")
@@ -23,11 +22,35 @@ public class RandomReviewsSeeder {
   private final ReviewService reviews;
 
   private static final int REVIEWS_PER_BOOK = 3;
-  private static final String[] COMMENTS = {
-      "Fantastic read!", "Highly recommended.", "Meh.",
-      "Loved every chapter.", "Not my cup of tea.",
-      "Great insights.", "Could be shorter.", "Five stars!"
+
+  /** comment → rating */
+  private static final Map<String, Integer> COMMENT_RATING = Map.ofEntries(
+      Map.entry("Five stars!", 5),
+      Map.entry("Fantastic read!", 5),
+      Map.entry("Loved every chapter.", 5),
+      Map.entry("Highly recommended.", 4),
+      Map.entry("Great insights.", 4),
+      Map.entry("Could be shorter.", 3),
+      Map.entry("Meh.", 2),
+      Map.entry("Not my cup of tea.", 2),
+      Map.entry("Pretty bad.", 1),
+      Map.entry("Zero stars.", 0) // ★0
+  );
+  private static final List<String> COMMENTS = new ArrayList<>(COMMENT_RATING.keySet());
+
+  /* goofy but non-animal handles */
+  private static final String[] ADJ = {
+      "Funky", "Rusty", "Cosmic", "Witty", "Epic",
+      "Turbo", "Electric", "Shadow", "Neon", "Pixel"
   };
+  private static final String[] NOUN = {
+      "Wizard", "Ninja", "Pirate", "Goblin", "Rocket",
+      "Cipher", "Giant", "Phantom", "Cyclone", "Comet"
+  };
+
+  private static String randomUsername(Random r) {
+    return ADJ[r.nextInt(ADJ.length)] + NOUN[r.nextInt(NOUN.length)];
+  }
 
   @Bean
   ApplicationRunner run() {
@@ -42,15 +65,20 @@ public class RandomReviewsSeeder {
 
       for (var b : books.all()) {
         for (int i = 0; i < REVIEWS_PER_BOOK; i++) {
+
+          String comment = COMMENTS.get(rnd.nextInt(COMMENTS.size()));
+          int score = COMMENT_RATING.get(comment);
+
           Review r = new Review(
               UUID.randomUUID().toString(),
               b.getId(),
-              COMMENTS[rnd.nextInt(COMMENTS.length)],
-              rnd.nextInt(6),
-              "seed@bot",
-              "Seed Bot",
-              "",
-              false);
+              comment,
+              score,
+              "seed@bot", 
+              randomUsername(rnd),
+              "", 
+              false 
+          );
 
           reviews.create(r);
           total++;

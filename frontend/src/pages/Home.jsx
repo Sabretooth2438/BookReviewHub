@@ -5,6 +5,8 @@ import StarRating from '../components/StarRating'
 import useFetch from '../hooks/useFetch'
 import { fetchBooks } from '../services/books'
 
+const CARD_WIDTH = 180 // px – adjust if you like
+
 const Home = () => {
   const { data, isLoading } = useFetch(['books'], fetchBooks)
   const books = data?.data ?? []
@@ -23,6 +25,7 @@ const Home = () => {
       <Header />
 
       <main className="pt-24 px-6 space-y-6">
+        {/* search box */}
         <input
           type="search"
           placeholder="Search books…"
@@ -35,19 +38,17 @@ const Home = () => {
                       focus:outline-none focus:ring-2 focus:ring-primary"
         />
 
-        {/* books grid */}
-        <section
-          className="grid gap-6
-                      sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6"
-        >
+        {/* cards — flex so last row stays centred */}
+        <section className="flex flex-wrap justify-center gap-6">
           {isLoading && (
-            <p className="col-span-full text-center animate-pulse">Loading…</p>
+            <p className="w-full text-center animate-pulse">Loading…</p>
           )}
 
           {filtered.map((b) => (
             <Link
               key={b.id}
               to={`/book/${b.id}`}
+              style={{ width: CARD_WIDTH }}
               className="rounded-xl overflow-hidden
                           bg-white dark:bg-gray-900/80
                           border border-black dark:border-white

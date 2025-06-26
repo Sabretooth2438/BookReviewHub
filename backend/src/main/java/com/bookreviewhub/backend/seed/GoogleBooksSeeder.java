@@ -24,7 +24,7 @@ public class GoogleBooksSeeder {
   private final BookService books;
 
   private static final List<String> QUERIES = List.of(
-      "clean code", "design patterns", "spring boot");
+      "fantasy novel", "epic fantasy", "young adult fantasy");
 
   private static final int MAX_RESULTS_PER_QUERY = 10;
   private static final int MAX_TOTAL_BOOKS = 30;
