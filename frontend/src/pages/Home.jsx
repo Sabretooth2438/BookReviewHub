@@ -5,7 +5,7 @@ import StarRating from '../components/StarRating'
 import useFetch from '../hooks/useFetch'
 import { fetchBooks } from '../services/books'
 
-const CARD_WIDTH = 180 // px – adjust if you like
+const CARD_WIDTH = 180
 
 const Home = () => {
   const { data, isLoading } = useFetch(['books'], fetchBooks)

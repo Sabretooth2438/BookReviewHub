@@ -20,19 +20,14 @@ const Login = () => {
     setMsg(null)
 
     try {
-      /* 1️⃣ authenticate */
       const { data } = await login(email, password)
       const jwt = data.token
 
-      /* save token for the whole app */
       dispatch({ type: 'LOGIN', token: jwt })
 
-      /* 2️⃣ fetch profile USING the fresh JWT explicitly
-            → avoids race with Axios interceptor */
       const prof = await fetchProfile(jwt).then((r) => r.data)
       const needsUsername = !prof.username?.trim()
 
-      /* 3️⃣ success banner then redirect */
       setMsg({ type: 'ok', text: 'Login successful.' })
       setTimeout(() => {
         nav(needsUsername ? '/profile' : '/')

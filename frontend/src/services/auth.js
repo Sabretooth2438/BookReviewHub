@@ -9,11 +9,8 @@ export const login = (email, password) =>
 export const resetPassword = (oldPassword, newPassword) =>
   api.post('/api/auth/reset-password', { oldPassword, newPassword })
 
-/**
- * If a token string is passed, send it explicitly in the header so the
- * very first profile call after login cannot race the interceptor.
- * Otherwise (token === undefined) fall back to the interceptor.
- */
+// Fetches the current user's profile. If a token is provided, it includes it in the request headers.
+
 export const fetchProfile = (token) =>
   api.get(
     '/api/auth/profile',
@@ -22,5 +19,3 @@ export const fetchProfile = (token) =>
 
 export const updateProfile = (username) =>
   api.put('/api/auth/profile', { username })
-
-// avatar upload removed – placeholder SVG is always shown
