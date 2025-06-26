@@ -1,96 +1,156 @@
 # BookReviewHub
 
-BookReviewHub is a full-stack web application for browsing books and sharing reviews. The backend is built with **Spring Boot** and the frontend uses **React** with **Tailwind CSS**.
-
-## Features
-- User registration and authentication
-- Browse and search a catalog of books
-- Write, edit and delete reviews
-- User profiles with display name and avatar
-- Admin dashboard for managing books and reviews
-
-## Getting Started
-
-### Prerequisites
-- [Node.js](https://nodejs.org)
-- Java 17+ and [Maven](https://maven.apache.org)
-
-### Installation
-1. Clone the repository.
-2. Install front-end dependencies:
-   ```bash
-   cd frontend
-   npm install
-   ```
-3. Start the backend server:
-   ```bash
-   cd ../backend
-   ./mvnw spring-boot:run
-   ```
-4. In another terminal, start the React development server:
-   ```bash
-   cd ../frontend
-   npm run dev
-   ```
-
-You can also run both servers together from the project root with:
-```bash
-npm run dev
-```
-
-## Screenshots
-Place screenshots of the website in this section.
-
-![Homepage](./path/to/homepage.png)
-![Book page](./path/to/book-page.png)
-
-## Pseudocode
-
-```plaintext
-IF user submits review
-    FETCH book by ID
-    ADD review to book.reviews
-    RECALCULATE book rating
-    UPDATE book
-END IF
-```
-
-## Entity-Relationship Diagram (ERD)
-
-The application is centred around three main entities: **User**, **Book**, and **Review**.
-
-![ERD Diagram Placeholder](./path/to/erd-image.png)
-
-- **User** has many **Reviews**
-- **Book** has many **Reviews**
-- **Review** belongs to both **User** and **Book**
-
-## User Stories
-
-- **[US1]** _As a visitor, I can sign up with a username and profile picture so that others can recognise me._
-- **[US2]** _As a reader, I want to browse books and see their ratings so that I can choose what to read._
-- **[US3]** _As a logged-in user, I can post reviews anonymously or with my profile._
-- **[US4]** _As an admin, I can manage books and moderate reviews._
-
-## Future Improvements
-
-- Add automated tests for authentication and profile updates
-- Validate uploaded profile images server-side
-- Store user-uploaded images in dedicated cloud storage
-
-## Proposed Tasks
-
-- Refactor the profile API so it never returns password hashes
-- Migrate book image uploads to Firebase storage instead of storing base64 data
-- Implement end-to-end tests covering signup, login and profile editing
-- Fix runtime error on the signup page when the removed username field is
-  referenced by older builds
-
-## Maintainer
-This project is maintained by [**Sabretooth2438**](https://github.com/Sabretooth2438).
-
-<img src="https://github.com/Sabretooth2438.png" width="100" alt="Sabretooth2438 avatar" />
+BookReviewHub is a full‑stack web application for browsing books and sharing reviews.
+The **backend** is built with Spring Boot, while the **frontend** uses React + Vite + Tailwind CSS.
 
 ---
 
-Feel free to open issues or submit pull requests to contribute.
+## Features
+
+* User registration & authentication
+* Browse, search, and filter the book catalogue
+* Write, edit, and delete reviews (anonymous or attributed)
+* Personal profile with display name and avatar
+* Admin dashboard to manage books and moderate reviews
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+| Tool    | Version |
+| ------- | ------- |
+| Node.js | 18 +    |
+| Java    | 17 +    |
+| Maven   | 3.9 +   |
+
+> **Tip:** the repo contains no compiled artefacts; all commands below run from source.
+
+### Installation & Run (local dev)
+
+```bash
+# clone once
+git clone https://github.com/<your‑org>/BookReviewHub.git
+cd BookReviewHub
+
+# 1 – install front‑end deps
+cd frontend
+npm install
+
+# 2 – start both servers in parallel (root script)
+cd ..
+npm run dev
+```
+
+The script starts:
+
+* React dev‑server at **[http://localhost:5173](http://localhost:5173)**
+* Spring Boot API at **[http://localhost:8080](http://localhost:8080)**
+
+> Prefer separate terminals? Start each half with:
+>
+> ```bash
+> # backend only
+> cd backend
+> mvn spring-boot:run
+>
+> # front‑end only
+> cd frontend
+> npm run dev
+> ```
+
+---
+
+## Configuration
+
+Create **`.env`** files in both sub‑projects (they’re ignored by Git).
+Use *placeholder* values; insert your real secrets locally.
+
+```dotenv
+# backend/.env
+JWT_SECRET=<your‑jwt‑secret>              # any random 256‑bit base64 string
+JWT_EXPIRATION_MS=3600000                # 1 hour
+FIREBASE_KEY_PATH=classpath:firebase/serviceAccountKey.json
+
+# frontend/.env
+VITE_API_BASE_URL=http://localhost:8080
+```
+
+| Variable                 | Purpose                                                                    |
+| ------------------------ | -------------------------------------------------------------------------- |
+| **JWT\_SECRET**          | HMAC key used to sign access tokens. Generate once and keep private.       |
+| **JWT\_EXPIRATION\_MS**  | Lifetime of a token in milliseconds.                                       |
+| **FIREBASE\_KEY\_PATH**  | Location of the Firebase service‑account JSON. Default works in local dev. |
+| **VITE\_API\_BASE\_URL** | Base URL the browser calls for the API.                                    |
+
+---
+
+### Sample Data (optional)
+
+Populate the Firestore database with curated books and random reviews:
+
+```bash
+# books
+mvn -q spring-boot:run -Dspring-boot.run.arguments="--seed=books"
+
+# reviews (run after books)
+mvn -q spring-boot:run -Dspring-boot.run.arguments="--seed=reviews"
+```
+
+Leave the process running (Tomcat keeps it alive) or press **Ctrl‑C** after the
+"Seeded …" message.
+
+---
+
+## Screenshots
+
+| Home | Book details |
+| ---- | ------------ |
+|      |              |
+
+Add more images in `docs/screens/` and update the table.
+
+---
+
+## Entity‑Relationship Diagram (ERD)
+
+![ERD](./docs/erd/erd.png)
+
+| Entity     | Key fields                                                                          | Relationships                    |
+| ---------- | ----------------------------------------------------------------------------------- | -------------------------------- |
+| **User**   | `id`, `email`, `password`, `role`, `username`, `avatarUrl`                          | 1 ‒‣ ∞ **Review** (author)       |
+| **Book**   | `id`, `title`, `author`, `description`, `rating`, `imageUrl`, `createdBy`           | 1 ‒‣ ∞ **Review** (subject)      |
+| **Review** | `id`, `bookId`, `userId`, `content`, `rating`, `anonymous`, `username`, `avatarUrl` | ∞ ‒ 1 **User**<br>∞ ‒ 1 **Book** |
+
+Cardinality:
+
+* A **User** can author many reviews, but each review is written by exactly one user.
+* A **Book** can receive many reviews, but each review belongs to exactly one book.
+* Deleting a book cascades and deletes its reviews; deleting a user anonymises their past reviews.
+
+---
+
+## Pseudocode (rating refresh)
+
+```plaintext
+WHEN a review is created, updated, or deleted
+    FETCH the target book by its ID
+    RECOMPUTE   avgRating = average(of all review.rating where bookId = ID)
+    UPDATE      book.rating = avgRating
+END WHEN
+```
+
+The back‑end triggers this logic inside `ReviewService.refreshRating()` every time a review mutates.
+
+---
+
+## User Stories
+
+| ID  | Story                                                                                                                                         |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| US1 | As a visitor, I can **sign up with email & password** so I can access protected features.                                                     |
+| US2 | As a newly registered user **without a display name**, I’m redirected to the **profile page** to add or edit my username and optional avatar. |
+| US3 | As a reader, I can **browse and search** the book catalogue and view aggregate ratings.                                                       |
+| US4 | As a logged‑in user, I can **write, edit, or delete reviews**, posting them anonymously or under my profile.                                  |
+| US5 | As an admin, I can **add, update, or delete books** and **moderate reviews** from a dashboard.                                                |
