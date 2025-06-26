@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { fetchBooks } from '../../services/books'
 import * as rev from '../../services/reviews'
 import Header from '../../components/layout/Header'
@@ -12,12 +12,11 @@ import { useAuth } from '../../auth/AuthProvider'
 import { roleFromToken } from '../../utils/jwt'
 
 const ReviewsTable = () => {
-  const qc = useQueryClient()
   const { token } = useAuth()
   const role = roleFromToken(token)
   const ownerEmail = token ? JSON.parse(atob(token.split('.')[1])).sub : ''
 
-  /* books */
+  /* books list */
   const { data: books } = useQuery({
     queryKey: ['books'],
     queryFn: fetchBooks,
@@ -26,23 +25,40 @@ const ReviewsTable = () => {
     (books?.data ?? []).map((b) => [b.id, b.title])
   )
 
-  /* dropdown */
+  /* filters */
   const [bookId, setBookId] = useState('')
+  const [search, setSearch] = useState('')
 
-  const { data: reviews, refetch } = useQuery({
+  /* reviews */
+  const {
+    data: reviews,
+    refetch,
+    isFetching,
+  } = useQuery({
     queryKey: ['reviews', bookId || 'ALL'],
     queryFn: async () => {
+      if (!books) return []
+
+      /* single book selected → one call */
       if (bookId) return rev.fetchReviews(bookId).then((r) => r.data)
 
-      const all = []
-      for (const b of books?.data ?? []) {
-        const list = await rev.fetchReviews(b.id).then((r) => r.data)
-        all.push(...list)
-      }
-      return all
+      /* all books → call them **in parallel** */
+      const lists = await Promise.all(
+        books.data.map((b) => rev.fetchReviews(b.id).then((r) => r.data))
+      )
+      return lists.flat()
     },
+    staleTime: 1000 * 60 * 5, // 5 min
     enabled: !!books,
   })
+
+  /* search filter */
+  const visible =
+    reviews?.filter((r) =>
+      (r.content + (r.username ?? ''))
+        .toLowerCase()
+        .includes(search.trim().toLowerCase())
+    ) ?? []
 
   /* mutations */
   const save = useMutation({
@@ -71,23 +87,36 @@ const ReviewsTable = () => {
       <div className="p-6">
         <h1 className="text-xl font-bold mb-4">Reviews (admin)</h1>
 
-        <select
-          value={bookId}
-          onChange={(e) => setBookId(e.target.value)}
-          className="border rounded p-2 mb-4
-                     bg-white text-gray-900
-                     dark:bg-gray-800 dark:text-gray-100
-                     focus:outline-none focus:ring-2 focus:ring-primary"
-        >
-          <option value="">— All Books —</option>
-          {books?.data?.map((b) => (
-            <option value={b.id} key={b.id}>
-              {b.title}
-            </option>
-          ))}
-        </select>
+        <div className="flex items-center gap-4 flex-wrap mb-4">
+          <select
+            value={bookId}
+            onChange={(e) => setBookId(e.target.value)}
+            className="border rounded p-2
+                        bg-white text-gray-900
+                        dark:bg-gray-800 dark:text-gray-100
+                        focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="">— All Books —</option>
+            {books?.data?.map((b) => (
+              <option value={b.id} key={b.id}>
+                {b.title}
+              </option>
+            ))}
+          </select>
 
-        {reviews?.map((r) => (
+          <Input
+            className="max-w-xs"
+            placeholder="Search text or user…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
+        {isFetching && (
+          <p className="text-sm text-gray-500 mb-2 animate-pulse">Loading…</p>
+        )}
+
+        {visible.map((r) => (
           <div
             key={r.id}
             className="border-b py-2 flex justify-between items-start"
@@ -101,12 +130,8 @@ const ReviewsTable = () => {
               </Link>
               <p>{r.content}</p>
               <div className="flex items-center gap-2 text-xs text-gray-500">
-                {!r.anonymous && r.avatarUrl && (
-                  <img
-                    src={r.avatarUrl}
-                    alt={r.username}
-                    className="w-6 h-6 rounded-full"
-                  />
+                {!r.anonymous && (
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-current" />
                 )}
                 <span>
                   by {r.anonymous ? 'Anonymous' : r.username || r.createdBy}

@@ -18,17 +18,20 @@ const BookDetails = () => {
   const { token } = useAuth()
   const ownerEmail = token ? JSON.parse(atob(token.split('.')[1])).sub : ''
 
+  /* book */
   const { data: book } = useQuery({
     queryKey: ['books', id],
     queryFn: fetchBooks,
     select: (res) => res.data.find((b) => b.id === id),
   })
 
+  /* reviews */
   const { data: reviews } = useQuery({
     queryKey: ['reviews', id],
     queryFn: () => rev.fetchReviews(id).then((r) => r.data),
   })
 
+  /* mutations */
   const invalidateBook = () => qc.invalidateQueries({ queryKey: ['books', id] })
 
   const make = useMutation({
@@ -55,9 +58,10 @@ const BookDetails = () => {
     },
   })
 
+  /* local state */
   const [content, setContent] = useState('')
   const [rating, setRating] = useState(0)
-  const [anonymous, setAnonymous] = useState(false)
+  const [anonymous, setAnon] = useState(false)
   const [editR, setEditR] = useState(null)
   const [delId, setDelId] = useState(null)
 
@@ -69,7 +73,7 @@ const BookDetails = () => {
 
       <section className="p-6 max-w-3xl mx-auto">
         <div className="bg-white dark:bg-gray-900/80 rounded-xl p-6 shadow">
-          {/* cover */}
+          {/* ── cover ── */}
           {book.imageUrl && (
             <img
               src={book.imageUrl}
@@ -100,16 +104,18 @@ const BookDetails = () => {
                 <input
                   type="checkbox"
                   checked={anonymous}
-                  onChange={(e) => setAnonymous(e.target.checked)}
+                  onChange={(e) => setAnon(e.target.checked)}
                 />
                 Post anonymously
               </label>
+
               <textarea
                 className="w-full border rounded p-2 bg-white dark:bg-gray-800"
                 placeholder="Write a review…"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
               />
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <StarRating value={rating} onChange={setRating} />
@@ -124,7 +130,7 @@ const BookDetails = () => {
                     })
                     setContent('')
                     setRating(0)
-                    setAnonymous(false)
+                    setAnon(false)
                   }}
                 >
                   Submit
@@ -133,13 +139,15 @@ const BookDetails = () => {
             </div>
           )}
 
-          {/* ── reviews ── */}
+          {/* ── reviews list ── */}
           <h2 className="text-xl font-semibold mt-8 mb-4">Reviews</h2>
 
           <div className="max-h-72 overflow-y-auto space-y-4 pr-2">
             {reviews?.map((r) => {
               const owner = r.createdBy === ownerEmail
-              const avatarSrc = r.avatarUrl || defaultAvatar
+              const avatarSrc = r.anonymous
+                ? defaultAvatar
+                : r.avatarUrl || defaultAvatar
 
               return (
                 <article
@@ -153,18 +161,20 @@ const BookDetails = () => {
                         ({r.rating})
                       </span>
                     </div>
+
                     <p>{r.content}</p>
+
                     <div className="flex items-center gap-2 text-xs text-gray-500">
-                      {!r.anonymous && (
-                        <img
-                          src={r.avatarUrl || defaultAvatar}
-                          alt={r.username || 'avatar'}
-                          className="w-6 h-6 rounded-full object-cover
-                                      bg-gray-300 dark:bg-gray-700
-                                      p-1 dark:invert"
-                          onError={(e) => (e.currentTarget.src = defaultAvatar)}
-                        />
-                      )}
+                      <img
+                        src={avatarSrc}
+                        alt={
+                          r.anonymous ? 'anon avatar' : r.username || 'avatar'
+                        }
+                        className="w-6 h-6 rounded-full object-cover
+                                    bg-gray-300 dark:bg-gray-700
+                                    p-1 dark:invert"
+                        onError={(e) => (e.currentTarget.src = defaultAvatar)}
+                      />
                       <span>
                         by{' '}
                         {r.anonymous ? 'Anonymous' : r.username || r.createdBy}
@@ -185,7 +195,7 @@ const BookDetails = () => {
         </div>
       </section>
 
-      {/* edit dialog */}
+      {/* ── edit dialog ── */}
       <Dialog open={!!editR} onClose={() => setEditR(null)}>
         {editR && (
           <form
@@ -196,11 +206,13 @@ const BookDetails = () => {
             }}
           >
             <h2 className="text-lg font-semibold">Edit Review</h2>
+
             <Input
               as="textarea"
               value={editR.content}
               onChange={(e) => setEditR({ ...editR, content: e.target.value })}
             />
+
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
@@ -211,6 +223,7 @@ const BookDetails = () => {
               />
               Post anonymously
             </label>
+
             <div className="flex items-center gap-2">
               <StarRating
                 value={editR.rating}
@@ -218,6 +231,7 @@ const BookDetails = () => {
               />
               <span className="text-sm text-gray-500">({editR.rating})</span>
             </div>
+
             <Button type="submit" className="w-full">
               Update
             </Button>
@@ -225,7 +239,7 @@ const BookDetails = () => {
         )}
       </Dialog>
 
-      {/* delete confirm */}
+      {/* ── delete confirm ── */}
       <ConfirmDialog
         open={!!delId}
         title="Delete Review"

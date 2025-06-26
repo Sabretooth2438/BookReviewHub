@@ -19,26 +19,35 @@ const blank = {
   author: '',
   description: '',
   imageUrl: '',
-  rating: 0, // backend will ignore on create; kept for type completeness
+  rating: 0,
 }
 
 const BooksTable = () => {
   const qc = useQueryClient()
   const { data } = useQuery({ queryKey: ['books'], queryFn: fetchBooks })
 
-  const [formOpen, setFormOpen] = useState(false)
+  /* local ui state */
+  const [search, setSearch] = useState('')
+  const [formOpen, setOpen] = useState(false)
   const [draft, setDraft] = useState(blank)
   const [delId, setDelId] = useState(null)
 
-  const handleFile = (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => setDraft({ ...draft, imageUrl: reader.result })
-    reader.readAsDataURL(file)
+  /* derived rows */
+  const rows =
+    data?.data?.filter((b) =>
+      (b.title + b.author).toLowerCase().includes(search.trim().toLowerCase())
+    ) ?? []
+
+  /* helpers */
+  const onFile = (e) => {
+    const f = e.target.files[0]
+    if (!f) return
+    const r = new FileReader()
+    r.onload = () => setDraft({ ...draft, imageUrl: r.result })
+    r.readAsDataURL(f)
   }
 
-  /* mutations — rating stripped before sending on update */
+  /* mutations */
   const save = useMutation({
     mutationFn: (b) =>
       b.id
@@ -57,9 +66,18 @@ const BooksTable = () => {
       <Header />
 
       <div className="p-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
           <h1 className="text-xl font-bold">Books (admin)</h1>
-          <Button onClick={() => (setDraft(blank), setFormOpen(true))}>
+
+          {/* search bar */}
+          <Input
+            className="max-w-xs"
+            placeholder="Search title or author…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+
+          <Button onClick={() => (setDraft(blank), setOpen(true))}>
             + Add
           </Button>
         </div>
@@ -74,7 +92,7 @@ const BooksTable = () => {
             </tr>
           </thead>
           <tbody>
-            {data?.data?.map((b) => (
+            {rows.map((b) => (
               <tr
                 key={b.id}
                 className="even:bg-gray-50 dark:even:bg-gray-900/40"
@@ -100,7 +118,7 @@ const BooksTable = () => {
                   <StarRating value={b.rating} />
                 </td>
                 <td className="border p-2 space-x-2">
-                  <Button onClick={() => (setDraft(b), setFormOpen(true))}>
+                  <Button onClick={() => (setDraft(b), setOpen(true))}>
                     Edit
                   </Button>
                   <Button onClick={() => setDelId(b.id)}>Delete</Button>
@@ -111,13 +129,13 @@ const BooksTable = () => {
         </table>
       </div>
 
-      {/* ───── create / edit dialog ───── */}
-      <Dialog open={formOpen} onClose={() => setFormOpen(false)}>
+      {/* create / edit dialog */}
+      <Dialog open={formOpen} onClose={() => setOpen(false)}>
         <form
           className="space-y-3"
           onSubmit={(e) => {
             e.preventDefault()
-            save.mutate(draft, { onSuccess: () => setFormOpen(false) })
+            save.mutate(draft, { onSuccess: () => setOpen(false) })
           }}
         >
           <h2 className="text-lg font-semibold">
@@ -147,9 +165,7 @@ const BooksTable = () => {
             value={draft.imageUrl}
             onChange={(e) => setDraft({ ...draft, imageUrl: e.target.value })}
           />
-          <input type="file" onChange={handleFile} />
-
-          {/* Rating field removed from the form */}
+          <input type="file" onChange={onFile} />
 
           <Button type="submit" className="w-full">
             {draft.id ? 'Update' : 'Create'}
@@ -157,7 +173,7 @@ const BooksTable = () => {
         </form>
       </Dialog>
 
-      {/* ───── delete confirm ───── */}
+      {/* delete confirm */}
       <ConfirmDialog
         open={!!delId}
         title="Delete Book"
