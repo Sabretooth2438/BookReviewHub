@@ -43,6 +43,3 @@ dist/
 nbdist/
 backend/nbproject/private/
 backend/.nb-gradle/
-
-# Test Files
-\[Test]

@@ -3,17 +3,13 @@
 BookReviewHub is a full‑stack web application for browsing books and sharing reviews.
 The **backend** is built with Spring Boot, while the **frontend** uses React + Vite + Tailwind CSS.
 
----
-
 ## Features
 
-* User registration & authentication
-* Browse, search, and filter the book catalogue
-* Write, edit, and delete reviews (anonymous or attributed)
-* Personal profile with display name and avatar
-* Admin dashboard to manage books and moderate reviews
-
----
+- User registration & authentication
+- Browse, search, and filter the book catalogue
+- Write, edit, and delete reviews (anonymous or attributed)
+- Personal profile with display name and avatar
+- Admin dashboard to manage books and moderate reviews
 
 ## Getting Started
 
@@ -45,8 +41,8 @@ npm run dev
 
 The script starts:
 
-* React dev‑server at **[http://localhost:5173](http://localhost:5173)**
-* Spring Boot API at **[http://localhost:8080](http://localhost:8080)**
+- React dev‑server at **[http://localhost:5173](http://localhost:5173)**
+- Spring Boot API at **[http://localhost:8080](http://localhost:8080)**
 
 > Prefer separate terminals? Start each half with:
 >
@@ -60,12 +56,10 @@ The script starts:
 > npm run dev
 > ```
 
----
-
 ## Configuration
 
 Create **`.env`** files in both sub‑projects (they’re ignored by Git).
-Use *placeholder* values; insert your real secrets locally.
+Use _placeholder_ values; insert your real secrets locally.
 
 ```dotenv
 # backend/.env
@@ -77,12 +71,12 @@ FIREBASE_KEY_PATH=classpath:firebase/serviceAccountKey.json
 VITE_API_BASE_URL=http://localhost:8080
 ```
 
-| Variable                 | Purpose                                                                    |
-| ------------------------ | -------------------------------------------------------------------------- |
-| **JWT\_SECRET**          | HMAC key used to sign access tokens. Generate once and keep private.       |
-| **JWT\_EXPIRATION\_MS**  | Lifetime of a token in milliseconds.                                       |
-| **FIREBASE\_KEY\_PATH**  | Location of the Firebase service‑account JSON. Default works in local dev. |
-| **VITE\_API\_BASE\_URL** | Base URL the browser calls for the API.                                    |
+| Variable              | Purpose                                                                    |
+| --------------------- | -------------------------------------------------------------------------- |
+| **JWT_SECRET**        | HMAC key used to sign access tokens. Generate once and keep private.       |
+| **JWT_EXPIRATION_MS** | Lifetime of a token in milliseconds.                                       |
+| **FIREBASE_KEY_PATH** | Location of the Firebase service‑account JSON. Default works in local dev. |
+| **VITE_API_BASE_URL** | Base URL the browser calls for the API.                                    |
 
 ---
 
@@ -101,17 +95,21 @@ mvn -q spring-boot:run -Dspring-boot.run.arguments="--seed=reviews"
 Leave the process running (Tomcat keeps it alive) or press **Ctrl‑C** after the
 "Seeded …" message.
 
----
 
 ## Screenshots
 
-| Home | Book details |
-| ---- | ------------ |
-|      |              |
+| Page                   | Preview                                                                |
+| ---------------------- | ---------------------------------------------------------------------- |
+| **Signup**             | ![Signup](./docs/screens/1.%20Signup%20Page.png)                       |
+| **Login**              | ![Login](./docs/screens/2.%20Login%20Page.png)                         |
+| **Home**               | ![Home](./docs/screens/3.%20Home%20Page.png)                           |
+| **Book&nbsp;details**  | ![Book details](./docs/screens/4.%20Book%20Details%20Page.png)         |
+| **Admin – Books list** | ![Books table](./docs/screens/5.%20BooksTable%20Page.png)              |
+| **Admin – Add book**   | ![Add book](./docs/screens/6.%20Adding%20New%20Book%20Form.png)        |
+| **Admin – Edit book**  | ![Edit book](./docs/screens/7.%20Updating%20Current%20Book%20Form.png) |
+| **Admin – Reviews**    | ![Reviews](./docs/screens/8.%20ReviewsTable%20Page.png)                |
+| **Profile**            | ![Profile](./docs/screens/9.%20Profile%20Page.png)                     |
 
-Add more images in `docs/screens/` and update the table.
-
----
 
 ## Entity‑Relationship Diagram (ERD)
 
@@ -125,11 +123,9 @@ Add more images in `docs/screens/` and update the table.
 
 Cardinality:
 
-* A **User** can author many reviews, but each review is written by exactly one user.
-* A **Book** can receive many reviews, but each review belongs to exactly one book.
-* Deleting a book cascades and deletes its reviews; deleting a user anonymises their past reviews.
-
----
+- A **User** can author many reviews, but each review is written by exactly one user.
+- A **Book** can receive many reviews, but each review belongs to exactly one book.
+- Deleting a book cascades and deletes its reviews; deleting a user anonymises their past reviews.
 
 ## Pseudocode (rating refresh)
 
@@ -142,8 +138,6 @@ END WHEN
 ```
 
 The back‑end triggers this logic inside `ReviewService.refreshRating()` every time a review mutates.
-
----
 
 ## User Stories
 
